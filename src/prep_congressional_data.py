@@ -90,7 +90,7 @@ def clean_data():
 
     pop_df.to_csv('../clean_data/cleaned_population.csv', index=False)
 
-    countyAdjacency = pd.read_csv('CountyAdjacencyFile.txt', delimiter='|')
+    countyAdjacency = pd.read_csv('../data/CountyAdjacencyFile.txt', delimiter='|')
 
     countyAdjacency[['County Name', 'State']] = countyAdjacency['County Name'].str.split(', ', expand=True)
     countyAdjacency[['Neighbor Name', 'Neighbor State']] = countyAdjacency['Neighbor Name'].str.split(', ', expand=True)
