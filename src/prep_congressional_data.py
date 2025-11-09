@@ -89,6 +89,31 @@ def clean_data():
     # county_list = counties["County"].to_list()
 
     pop_df.to_csv('../clean_data/cleaned_population.csv', index=False)
+
+    countyAdjacency = pd.read_csv('CountyAdjacencyFile.txt', delimiter='|')
+
+    countyAdjacency[['County Name', 'State']] = countyAdjacency['County Name'].str.split(', ', expand=True)
+    countyAdjacency[['Neighbor Name', 'Neighbor State']] = countyAdjacency['Neighbor Name'].str.split(', ', expand=True)
+
+    countyAdjacency = countyAdjacency[['County Name', 'State', 'Neighbor Name', 'Neighbor State']]
+
+    # Remove neighbors that are not in the same state
+    countyAdjacency = countyAdjacency[countyAdjacency['State'] == countyAdjacency['Neighbor State']]
+
+    # Create adjacency list dictionary
+    adjacency_dict = {}
+    for _, row in countyAdjacency.iterrows():
+        county = f"{row['County Name']}, {row['State']}"
+        neighbor = f"{row['Neighbor Name']}, {row['Neighbor State']}"
+        if county not in adjacency_dict:
+            adjacency_dict[county] = []
+        adjacency_dict[county].append(neighbor)
+
+    # Save adjacency dictionary to a file
+    with open('../clean_data/county_adjacency.json', 'w') as f:
+        json.dump(adjacency_dict, f, indent=4)
+
+
     
 def create_embeddings(output_file_name="embeddings"):
     """
