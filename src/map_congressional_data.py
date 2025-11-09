@@ -56,9 +56,10 @@ def getMaxSimilarity(county_embedding, county_list, embeddings):
             closet_county = other_county
     return closet_county
 
-def getSmallestCongressionalCounty(Congressional_Counties):
+def getSmallestCongressionalCountyIndex(Congressional_Counties):
     sorted_list = sorted(Congressional_Counties)
-    return sorted_list
+    index = Congressional_Counties.index(sorted(Congressional_Counties)[0])
+    return index
 
 def getAdjacencyList(county_list, adjacency_list, current_county_list):
     """
@@ -229,8 +230,8 @@ def build_congressional_districts( timelape=False, embeddings_file_name="embeddi
             avg_county_embedding = np.mean(np.array([avg_county_embedding, embeddings[county]]), axis=0)
 
         while len(county_list) != 0:
-            Congressional_Counties = getSmallestCongressionalCounty(Congressional_Counties)
-            current_counties = Congressional_Counties[0][1]
+            county_index = getSmallestCongressionalCountyIndex(Congressional_Counties)
+            current_counties = Congressional_Counties[county_index][1]
             current_embeddings = []
             for get_county in current_counties:
                 current_embeddings.append(embeddings[get_county])
@@ -239,12 +240,12 @@ def build_congressional_districts( timelape=False, embeddings_file_name="embeddi
             new_adjacency_list = getAdjacencyList(current_counties, adjacency_list, county_list)
             # If nothing is adjacent, the county is landlocked and cannot have any other counties
             if len(new_adjacency_list) == 0:
-                Congressional_Counties[0][0] = np.inf
+                Congressional_Counties[county_index][0] = np.inf
                 continue
             county = getMaxSimilarity(average_congressional_county, new_adjacency_list, embeddings)
             county_list.remove(county)
-            Congressional_Counties[0][0] += population_by_county[county]
-            Congressional_Counties[0][1].append(county)
+            Congressional_Counties[county_index][0] += population_by_county[county]
+            Congressional_Counties[county_index][1].append(county)
             if(timelape):
                 exportCongressional_Counties(Congressional_Counties, timelape)
 
